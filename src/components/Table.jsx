@@ -47,7 +47,7 @@ const Tables = () => {
           ))}
         </tr>
       </thead>
-      <tbody>
+      <tbody style={{ backgroundColor: "#E7CFBC" }}>
         {data.map((rowdata, rowIndex) => (
           <tr key={rowIndex}>
             <td>{rowIndex + 1}</td>

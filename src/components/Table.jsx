@@ -172,9 +172,11 @@ const Tables = () => {
       colspan: 3,
     },
     {
-      label:
-        "Давлат дастурларидаги белгиланган вазифаларнинг ижросини таъминлаш (млн сўм)",
+      label: "Ёшлар билан ҳар чоракда ўтказилган учрашувлар сони (млн сўм)",
       colspan: 3,
+    },
+    {
+      label: "",
     },
   ];
   useEffect(() => {
@@ -213,6 +215,7 @@ const Tables = () => {
           ))}
         </tr>
         <tr>
+          {/* Render the same set of header cells for each row of data */}
           {columnHeaders.map((header, index) => (
             <React.Fragment key={index}>
               <th>Режа</th>

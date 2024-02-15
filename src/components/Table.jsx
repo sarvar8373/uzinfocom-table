@@ -97,9 +97,6 @@ const Tables = () => {
             if (sumPercent > 100 || sumPercent < -1) {
               sumPercent = 100;
             }
-            // Calculate the average if there are indicators with "AVG" unit formula
-
-            // Display the calculated sum or average
             return (
               <React.Fragment key={index}>
                 <td>{sumPlan.toFixed(2)}</td>
@@ -121,22 +118,17 @@ const Tables = () => {
                     {rowIndex === 0 && (
                       <React.Fragment>
                         <td colSpan={3}>{regionName}</td>
-                        {/* Iterate over indicatorNames to calculate sums or averages */}
                         {indicatorNames.map((name, index) => {
-                          // Filter data to get only indicators with matching names for the current region_name
                           const matchingIndicators = data
                             .filter((row) => row.region_name === regionName)
                             .flatMap((row) => row.indicators)
                             .filter(
                               (indicator) => indicator.indicator_name === name
                             );
-
-                          // Initialize variables for sum and count for average calculation
                           let sumPlan = 0;
                           let sumFact = 0;
                           let sumPercent = 0;
 
-                          // Iterate over matching indicators to calculate sum or average
                           matchingIndicators.forEach((indicator) => {
                             if (indicator.unit_formula === "SUM") {
                               sumPlan += parseFloat(indicator.plan);
@@ -175,12 +167,9 @@ const Tables = () => {
                             }
                           });
 
-                          // Ensure sumPercent is within valid range
                           if (sumPercent > 100 || sumPercent < -1) {
                             sumPercent = 100;
                           }
-
-                          // Render total sum or average
                           return (
                             <React.Fragment key={index}>
                               <td>{sumPlan.toFixed(2)}</td>

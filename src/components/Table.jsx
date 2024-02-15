@@ -31,12 +31,23 @@ const Tables = () => {
 
     matchingIndicators.forEach((indicator) => {
       if (indicator.unit_formula === "SUM") {
-        sumPlan += parseFloat(indicator.plan);
-        sumFact += parseFloat(indicator.fact);
-        sumPercent =
-          indicator.indicator_type === 1
-            ? 100 * (1 + (1 - (sumFact / sumPlan) * 1))
-            : (sumFact / sumPlan) * 100;
+        const parsedPlan = parseFloat(indicator.plan);
+        const parsedFact = parseFloat(indicator.fact);
+
+        if (!isNaN(parsedPlan)) {
+          sumPlan += parsedPlan;
+        }
+
+        if (!isNaN(parsedFact)) {
+          sumFact += parsedFact;
+        }
+
+        if (sumPlan !== 0) {
+          sumPercent =
+            indicator.indicator_type === 1
+              ? 100 * (1 + (1 - (sumFact / sumPlan) * 1))
+              : (sumFact / sumPlan) * 100;
+        }
       } else if (indicator.unit_formula === "AVG") {
         const planLength = Array.isArray(indicator.plan)
           ? indicator.plan.length
@@ -46,10 +57,17 @@ const Tables = () => {
           : 1;
         sumPlan += parseFloat(indicator.plan) / planLength;
         sumFact += parseFloat(indicator.fact) / factLength;
-        sumPercent =
-          indicator.indicator_type === 1
-            ? 100 * (1 + (1 - (indicator.fact / indicator.plan) * 1))
-            : (indicator.fact / indicator.plan) * 100;
+
+        if (sumPlan !== 0) {
+          if (indicator.indicator_type === 1) {
+            sumPercent = 100 * (1 + (1 - (sumFact / sumPlan) * 1));
+          } else {
+            const calculatedPercent = (sumFact / sumPlan) * 100;
+            sumPercent = !isNaN(calculatedPercent) ? calculatedPercent : 0;
+          }
+        } else {
+          sumPercent = 0;
+        }
       }
     });
 
@@ -99,8 +117,8 @@ const Tables = () => {
 
             return (
               <React.Fragment key={index}>
-                <td>{sumPlan}</td>
-                <td>{sumFact}</td>
+                <td style={{ width: "100%" }}>{sumPlan}</td>
+                <td style={{ width: "100%" }}>{sumFact}</td>
                 <td>{sumPercent}</td>
               </React.Fragment>
             );
@@ -161,9 +179,9 @@ const Tables = () => {
                         </React.Fragment>
                       ) : (
                         <React.Fragment key={index}>
-                          <td></td>
-                          <td></td>
-                          <td></td>
+                          <td>0</td>
+                          <td>0</td>
+                          <td>0</td>
                         </React.Fragment>
                       );
                     })}

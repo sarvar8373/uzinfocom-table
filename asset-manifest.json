@@ -1,13 +1,13 @@
 {
   "files": {
     "main.css": "/uzinfocom-table/static/css/main.58945292.css",
-    "main.js": "/uzinfocom-table/static/js/main.da1f8506.js",
+    "main.js": "/uzinfocom-table/static/js/main.80fe8d1c.js",
     "index.html": "/uzinfocom-table/index.html",
     "main.58945292.css.map": "/uzinfocom-table/static/css/main.58945292.css.map",
-    "main.da1f8506.js.map": "/uzinfocom-table/static/js/main.da1f8506.js.map"
+    "main.80fe8d1c.js.map": "/uzinfocom-table/static/js/main.80fe8d1c.js.map"
   },
   "entrypoints": [
     "static/css/main.58945292.css",
-    "static/js/main.da1f8506.js"
+    "static/js/main.80fe8d1c.js"
   ]
 }

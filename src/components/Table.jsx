@@ -4,6 +4,7 @@ import Datas from "./data.json";
 
 const Tables = () => {
   const [data, setData] = useState([]);
+
   useEffect(() => {
     const fetchData = () => {
       setTimeout(() => {
@@ -20,13 +21,43 @@ const Tables = () => {
       )
     )
   );
-  const regionNames = Array.from(
-    new Set(data.flatMap((row) => row.region_name))
-  );
-  const totalSum = {
-    plan: 0,
-    fact: 0,
-    percent: 0,
+
+  const regionNames = Array.from(new Set(data.map((row) => row.region_name)));
+
+  const calculateSum = (matchingIndicators) => {
+    let sumPlan = 0;
+    let sumFact = 0;
+    let sumPercent = 0;
+
+    matchingIndicators.forEach((indicator) => {
+      if (indicator.unit_formula === "SUM") {
+        sumPlan += parseFloat(indicator.plan);
+        sumFact += parseFloat(indicator.fact);
+        sumPercent =
+          indicator.indicator_type === 1
+            ? 100 * (1 + (1 - (indicator.fact / indicator.plan) * 1))
+            : (indicator.fact / indicator.plan) * 100;
+      } else if (indicator.unit_formula === "AVG") {
+        const planLength = Array.isArray(indicator.plan)
+          ? indicator.plan.length
+          : 1;
+        const factLength = Array.isArray(indicator.fact)
+          ? indicator.fact.length
+          : 1;
+        sumPlan += parseFloat(indicator.plan) / planLength;
+        sumFact += parseFloat(indicator.fact) / factLength;
+        sumPercent =
+          indicator.indicator_type === 1
+            ? 100 * (1 + (1 - (indicator.fact / indicator.plan) * 1))
+            : (indicator.fact / indicator.plan) * 100;
+      }
+    });
+
+    return {
+      sumPlan: sumPlan.toFixed(2),
+      sumFact: sumFact.toFixed(2),
+      sumPercent: sumPercent.toFixed(2) > 100 ? 100 : sumPercent.toFixed(2),
+    };
   };
 
   return (
@@ -63,45 +94,14 @@ const Tables = () => {
               .flatMap((row) => row.indicators)
               .filter((indicator) => indicator.indicator_name === name);
 
-            let sumPlan = 0;
-            let sumFact = 0;
-            let sumPercent = 0;
+            const { sumPlan, sumFact, sumPercent } =
+              calculateSum(matchingIndicators);
 
-            matchingIndicators.forEach((indicator) => {
-              if (indicator.unit_formula === "SUM") {
-                sumPlan += parseFloat(indicator.plan);
-                sumFact += parseFloat(indicator.fact);
-                if (indicator.indicator_type === 1) {
-                  sumPercent =
-                    100 * (1 + (1 - (indicator.fact / indicator.plan) * 1));
-                } else {
-                  sumPercent = (indicator.fact / indicator.plan) * 100;
-                }
-              } else if (indicator.unit_formula === "AVG") {
-                const planLength = Array.isArray(indicator.plan)
-                  ? indicator.plan.length
-                  : 1;
-                const factLength = Array.isArray(indicator.fact)
-                  ? indicator.fact.length
-                  : 1;
-                sumPlan += parseFloat(indicator.plan) / planLength;
-                sumFact += parseFloat(indicator.fact) / factLength;
-                if (indicator.indicator_type === 1) {
-                  sumPercent =
-                    100 * (1 + (1 - (indicator.fact / indicator.plan) * 1));
-                } else {
-                  sumPercent = (indicator.fact / indicator.plan) * 100;
-                }
-              }
-            });
-            if (sumPercent > 100 || sumPercent < -1) {
-              sumPercent = 100;
-            }
             return (
               <React.Fragment key={index}>
-                <td>{sumPlan.toFixed(2)}</td>
-                <td>{sumFact.toFixed(2)}</td>
-                <td>{sumPercent.toFixed(2)}</td>
+                <td>{sumPlan}</td>
+                <td>{sumFact}</td>
+                <td>{sumPercent}</td>
               </React.Fragment>
             );
           })}
@@ -125,56 +125,15 @@ const Tables = () => {
                             .filter(
                               (indicator) => indicator.indicator_name === name
                             );
-                          let sumPlan = 0;
-                          let sumFact = 0;
-                          let sumPercent = 0;
 
-                          matchingIndicators.forEach((indicator) => {
-                            if (indicator.unit_formula === "SUM") {
-                              sumPlan += parseFloat(indicator.plan);
-                              sumFact += parseFloat(indicator.fact);
-                              if (indicator.indicator_type === 1) {
-                                sumPercent =
-                                  100 *
-                                  (1 +
-                                    (1 -
-                                      (indicator.fact / indicator.plan) * 1));
-                              } else {
-                                sumPercent =
-                                  (indicator.fact / indicator.plan) * 100;
-                              }
-                            } else if (indicator.unit_formula === "AVG") {
-                              const planLength = Array.isArray(indicator.plan)
-                                ? indicator.plan.length
-                                : 1;
-                              const factLength = Array.isArray(indicator.fact)
-                                ? indicator.fact.length
-                                : 1;
-                              sumPlan +=
-                                parseFloat(indicator.plan) / planLength;
-                              sumFact +=
-                                parseFloat(indicator.fact) / factLength;
-                              if (indicator.indicator_type === 1) {
-                                sumPercent =
-                                  100 *
-                                  (1 +
-                                    (1 -
-                                      (indicator.fact / indicator.plan) * 1));
-                              } else {
-                                sumPercent =
-                                  (indicator.fact / indicator.plan) * 100;
-                              }
-                            }
-                          });
+                          const { sumPlan, sumFact, sumPercent } =
+                            calculateSum(matchingIndicators);
 
-                          if (sumPercent > 100 || sumPercent < -1) {
-                            sumPercent = 100;
-                          }
                           return (
                             <React.Fragment key={index}>
-                              <td>{sumPlan.toFixed(2)}</td>
-                              <td>{sumFact.toFixed(2)}</td>
-                              <td>{sumPercent.toFixed(2)}</td>
+                              <td>{sumPlan}</td>
+                              <td>{sumFact}</td>
+                              <td>{sumPercent}</td>
                             </React.Fragment>
                           );
                         })}

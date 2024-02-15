@@ -29,17 +29,6 @@ const Tables = () => {
     percent: 0,
   };
 
-  data.forEach((row) => {
-    row.indicators.forEach((indicator) => {
-      const { plan, fact, percent, unit_formula } = indicator;
-      if (unit_formula === "SUM") {
-        totalSum.plan += parseFloat(plan) || 0;
-        totalSum.fact += parseFloat(fact) || 0;
-        totalSum.percent += parseFloat(percent) || 0;
-      }
-    });
-  });
-
   return (
     <Table striped bordered hover size="sm">
       <thead style={{ backgroundColor: "#D5D3B7" }}>
@@ -70,17 +59,14 @@ const Tables = () => {
         <tr style={{ backgroundColor: "yellow" }}>
           <td colSpan={3}>Республика буйича</td>
           {indicatorNames.map((name, index) => {
-            // Filter data to get only indicators with matching names
             const matchingIndicators = data
               .flatMap((row) => row.indicators)
               .filter((indicator) => indicator.indicator_name === name);
 
-            // Initialize counters for sum and count for average calculation
             let sumPlan = 0;
             let sumFact = 0;
             let sumPercent = 0;
 
-            // Iterate over matching indicators to calculate sum or average
             matchingIndicators.forEach((indicator) => {
               if (indicator.unit_formula === "SUM") {
                 sumPlan += parseFloat(indicator.plan);
@@ -124,69 +110,77 @@ const Tables = () => {
           })}
         </tr>
 
-        {regionNames.map((name, index) => (
-          <React.Fragment key={index}>
+        {regionNames.map((regionName, regionIndex) => (
+          <React.Fragment key={regionIndex}>
             {data
-              .filter((rowdata) => rowdata.region_name === name)
+              .filter((rowdata) => rowdata.region_name === regionName)
               .map((rowdata, rowIndex) => (
                 <React.Fragment key={rowIndex}>
-                  <tr style={{ backgroundColor: "grey" }}>
+                  <tr style={{ backgroundColor: "#E0CA3C" }}>
+                    {/* Check if it's the first row */}
                     {rowIndex === 0 && (
                       <React.Fragment>
-                        <td colSpan={3}>{rowdata.region_name}</td>
-                        {regionNames.map((name, index) => {
-                          // Filter data to get only indicators with matching names
-                          const regionData = data.filter(
-                            (rowdata) => rowdata.region_name === name
-                          );
+                        <td colSpan={3}>{regionName}</td>
+                        {/* Iterate over indicatorNames to calculate sums or averages */}
+                        {indicatorNames.map((name, index) => {
+                          // Filter data to get only indicators with matching names for the current region_name
+                          const matchingIndicators = data
+                            .filter((row) => row.region_name === regionName)
+                            .flatMap((row) => row.indicators)
+                            .filter(
+                              (indicator) => indicator.indicator_name === name
+                            );
 
-                          // Initialize counters for sum and count for average calculation
+                          // Initialize variables for sum and count for average calculation
                           let sumPlan = 0;
                           let sumFact = 0;
                           let sumPercent = 0;
 
-                          regionData.forEach((rowdata) => {
-                            rowdata.indicators.forEach((indicator) => {
-                              if (indicator.unit_formula === "SUM") {
-                                sumPlan += parseFloat(indicator.plan);
-                                sumFact += parseFloat(indicator.fact);
-                                if (indicator.indicator_type === 1) {
-                                  sumPercent =
-                                    100 *
-                                    (1 +
-                                      (1 -
-                                        (indicator.fact / indicator.plan) * 1));
-                                } else {
-                                  sumPercent =
-                                    (indicator.fact / indicator.plan) * 100;
-                                }
-                              } else if (indicator.unit_formula === "AVG") {
-                                const planLength = Array.isArray(indicator.plan)
-                                  ? indicator.plan.length
-                                  : 1;
-                                const factLength = Array.isArray(indicator.fact)
-                                  ? indicator.fact.length
-                                  : 1;
-                                sumPlan +=
-                                  parseFloat(indicator.plan) / planLength;
-                                sumFact +=
-                                  parseFloat(indicator.fact) / factLength;
-                                if (indicator.indicator_type === 1) {
-                                  sumPercent =
-                                    100 *
-                                    (1 +
-                                      (1 -
-                                        (indicator.fact / indicator.plan) * 1));
-                                } else {
-                                  sumPercent =
-                                    (indicator.fact / indicator.plan) * 100;
-                                }
+                          // Iterate over matching indicators to calculate sum or average
+                          matchingIndicators.forEach((indicator) => {
+                            if (indicator.unit_formula === "SUM") {
+                              sumPlan += parseFloat(indicator.plan);
+                              sumFact += parseFloat(indicator.fact);
+                              if (indicator.indicator_type === 1) {
+                                sumPercent =
+                                  100 *
+                                  (1 +
+                                    (1 -
+                                      (indicator.fact / indicator.plan) * 1));
+                              } else {
+                                sumPercent =
+                                  (indicator.fact / indicator.plan) * 100;
                               }
-                            });
+                            } else if (indicator.unit_formula === "AVG") {
+                              const planLength = Array.isArray(indicator.plan)
+                                ? indicator.plan.length
+                                : 1;
+                              const factLength = Array.isArray(indicator.fact)
+                                ? indicator.fact.length
+                                : 1;
+                              sumPlan +=
+                                parseFloat(indicator.plan) / planLength;
+                              sumFact +=
+                                parseFloat(indicator.fact) / factLength;
+                              if (indicator.indicator_type === 1) {
+                                sumPercent =
+                                  100 *
+                                  (1 +
+                                    (1 -
+                                      (indicator.fact / indicator.plan) * 1));
+                              } else {
+                                sumPercent =
+                                  (indicator.fact / indicator.plan) * 100;
+                              }
+                            }
                           });
-                          // Calculate the average if there are indicators with "AVG" unit formula
 
-                          // Display the calculated sum or average
+                          // Ensure sumPercent is within valid range
+                          if (sumPercent > 100 || sumPercent < -1) {
+                            sumPercent = 100;
+                          }
+
+                          // Render total sum or average
                           return (
                             <React.Fragment key={index}>
                               <td>{sumPlan.toFixed(2)}</td>

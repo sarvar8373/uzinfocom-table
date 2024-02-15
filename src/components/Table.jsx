@@ -35,8 +35,8 @@ const Tables = () => {
         sumFact += parseFloat(indicator.fact);
         sumPercent =
           indicator.indicator_type === 1
-            ? 100 * (1 + (1 - (indicator.fact / indicator.plan) * 1))
-            : (indicator.fact / indicator.plan) * 100;
+            ? 100 * (1 + (1 - (sumFact / sumPlan) * 1))
+            : (sumFact / sumPlan) * 100;
       } else if (indicator.unit_formula === "AVG") {
         const planLength = Array.isArray(indicator.plan)
           ? indicator.plan.length
